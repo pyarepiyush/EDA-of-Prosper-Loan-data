@@ -1,9 +1,9 @@
 
-#Exploratory Data Analysis of Prosper Loan dataset
+# Exploratory Data Analysis of Prosper Loan dataset
 
-###Udacity Data Analyst Nanodegree
+### Udacity Data Analyst Nanodegree
 
-###Assignment#4
+### Assignment#4
 
 This project involves exploration of loan dataset that was downloaded from Prosper Loans. Prosper is a marketplace lending platform where individuals can invest or borrow money. It allows people to invest $25 or more for a given loan listing.
 
