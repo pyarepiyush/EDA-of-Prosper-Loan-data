@@ -32,7 +32,8 @@ library(ggplot2)
 
 ```
 
-Dimensions of the loan dataset:
+
+**Dimensions of the loan dataset:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Load_the_Data}
 
 # Load the Data
@@ -51,7 +52,7 @@ the loan.
 
 # Univariate Plots Section
 
-Here is a quick list of variables in the dataset
+**Here is a quick list of variables in the dataset**
 
 ```{r echo=FALSE, Univariate_Plots}
 
@@ -60,7 +61,7 @@ str(loan)
 ```
 
 
-Here is a quick summary of the dataset for selected variables of interest:
+**Here is a quick summary of the dataset for selected variables of interest:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots1}
 
 summary (loan[c("LoanStatus", "Term","BorrowerAPR","EstimatedLoss","EstimatedReturn",
@@ -74,7 +75,7 @@ summary (loan[c("LoanStatus", "Term","BorrowerAPR","EstimatedLoss","EstimatedRet
 ```
 
 We'd want to check LoanStatus to see if the loan was completed, or if it was 
-considered Bad loan:
+considered Bad loan. Count of Loan Status are shown in actual and log10 scale.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots2,fig.height=3,fig.width=8}
 
@@ -83,11 +84,18 @@ ggplot(aes(x=LoanStatus), data = loan) +
   coord_flip() +
   labs(x="Loan Status",y="Count of loans")
 
+
+ggplot(aes(x=LoanStatus), data = loan) + 
+  geom_histogram(stat="count") +
+  coord_flip() +
+  labs(x="Loan Status",y="Count of loans (log scale)") +
+  scale_y_log10()
+
 ```
 
 To make it easier to visualize good loans from bad loans, we convert all loans 
 that are past due for more than 30 days, Defaulted and Chargedoff loans as 
-**'Bad loans'**:
+**'Bad loans'**. Count of Loan Status are shown in actual and log10 scale.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots3,fig.height=3,fig.width=8}
 
@@ -95,9 +103,17 @@ that are past due for more than 30 days, Defaulted and Chargedoff loans as
 ### Combine Past Due (>60 days), Defaulted and Chargedoff into one bucket
 #table(loan$LoanStatus)
 loan$LoanStatus_mod = as.character(loan$LoanStatus)
-loan$LoanStatus_mod[loan$LoanStatus %in% c("Past Due (31-60 days)","Past Due (61-90 days)", "Past Due (91-120 days)", "Past Due (>120 days)","Chargedoff", "Defaulted")] ="Bad Loan"
-loan$LoanStatus_mod[loan$LoanStatus %in% c("Past Due (1-15 days)",  "Past Due (16-30 days)")] ="Past Due (<30 days)"
-loan$LoanStatus_mod[loan$LoanStatus %in% c("FinalPaymentInProgress")] ="Completed"
+loan$LoanStatus_mod[loan$LoanStatus %in% 
+                      c("Past Due (31-60 days)","Past Due (61-90 days)", 
+                        "Past Due (91-120 days)", "Past Due (>120 days)",
+                        "Chargedoff", "Defaulted")] ="Bad Loan"
+
+loan$LoanStatus_mod[loan$LoanStatus %in% 
+                      c("Past Due (1-15 days)",  
+                        "Past Due (16-30 days)")] ="Past Due (<30 days)"
+
+loan$LoanStatus_mod[loan$LoanStatus 
+                    %in% c("FinalPaymentInProgress")] ="Completed"
 
 
 ### Remove cancelled
@@ -108,8 +124,10 @@ loan = loan[loan$LoanStatus != "Cancelled",]
 #print(levels(loan$IncomeRange))
 
 ### reorder levels for Income Range
-loan$IncomeRange = factor(loan$IncomeRange,levels=c("Not displayed","Not employed","$0","$1-24,999",     
-                                                    "$25,000-49,999", "$50,000-74,999", "$75,000-99,999","$100,000+")
+loan$IncomeRange = factor(loan$IncomeRange,levels=
+                            c("Not displayed","Not employed","$0","$1-24,999",     
+                              "$25,000-49,999", "$50,000-74,999", "$75,000-99,999",
+                              "$100,000+")
 )
   
 # Display histogram                       
@@ -119,10 +137,18 @@ ggplot(aes(x=LoanStatus_mod), data = loan) +
   labs(x="Loan Status Modified",y="Count of loans")
 
 
+# Display histogram                       
+ggplot(aes(x=LoanStatus_mod), data = loan) + 
+  geom_histogram(stat="count", binwidth = .5) +
+  coord_flip() +
+  labs(x="Loan Status Modified",y="Count of loans (log scale)") +
+  scale_y_log10()
+
 ```
 
 
-Explore Prosper Score. This score is built using Prosper historical data.
+
+**Explore Prosper Score.** This score is built using Prosper historical data.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots4, fig.height=3,fig.width=8 }
 
@@ -132,17 +158,25 @@ ggplot(aes(x=ProsperScore), data = loan) +
   geom_histogram(stat="count") +
   coord_flip() +
   labs(x="Prosper Score",y="Count of loans")
+
+ggplot(aes(x=ProsperScore), data = loan) + 
+  geom_histogram(stat="count") +
+  coord_flip() +
+  labs(x="Prosper Score",y="Count of loans (log scale)") +
+  scale_y_log10()
+
 ```
 
 
-ProsperScore is supposed to have values ranging from 1-10. But it also seem to have
-11. 
+ProsperScore is supposed to have values ranging from 1-10. But it also seem to 
+have 11. 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots5, fig.height=3,fig.width=8 }
 
 table(loan$ProsperScore)
 
 ```
-Explore Term values:
+
+**Explore Term values:**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots6 }
 
@@ -160,17 +194,9 @@ print(a)
 There are only 3 terms 12, 36, and 60, and the most common seems to be 36.
 
 
-Explore other variables of interest that might define the Loan Status:
+**Explore Income Range:**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots7, fig.height=3,fig.width=8 }
-
-###---------------------------------------------------------------------
-#### Histogram of Credit Score Lower value
-ggplot(aes(x=CreditScoreRangeLower), data = subset(loan,CreditScoreRangeLower>0)) + 
-  geom_histogram(stat="count") +
-  scale_x_continuous(breaks=seq(500,900,50)) +
-  labs(x="Credit Score (Lower Range)>0",y="Count of loans")
-
 
 ###---------------------------------------------------------------------
 #### Histogram of Income Range
@@ -178,6 +204,71 @@ ggplot(aes(x=IncomeRange), data = loan) +
   geom_histogram(stat="count") +
   labs(x="Income Range",y="Count of loans")
 
+
+ggplot(aes(x=IncomeRange), data = loan) + 
+  geom_histogram(stat="count") +
+  labs(x="Income Range",y="Count of loans (log scale)")+
+  scale_y_log10()
+
+```
+
+Most frequent Income Range is $25k - 75k,
+
+
+**Explore Total number of Inquiries in past 6 months:**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots7a, fig.height=3,fig.width=8 }
+
+###---------------------------------------------------------------------
+#### Histogram of Total Inquiries when the credit was pulled
+
+ggplot(aes(x=InquiriesLast6Months), data =  loan) + 
+  geom_histogram(binwidth=.5)
+
+# Boxplot
+ggplot(aes(x=1,y=InquiriesLast6Months), data = subset(loan,InquiriesLast6Months>0)) + 
+  geom_boxplot()  +
+  labs(y="Inquiries last 6 months") +
+  coord_flip()
+
+```
+
+There seems to be outliers that are large distance away from the IQR range of data. 
+We try to limit the upper range at 30.
+
+Check how frequency for each InquiriesLast6Months value:
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots7b, fig.height=3,fig.width=8 }
+
+table(loan$InquiriesLast6Months)
+
+```
+
+Majority of records have anywhere between 0-2 inquiries in last 6 months. To make 
+those more visible, lets focus on only records with 0-4 inquiries in last 6 months.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots7c, fig.height=3,fig.width=8 }
+
+### 
+ggplot(aes(x=InquiriesLast6Months), data =  subset(loan,InquiriesLast6Months<5)) + 
+  geom_histogram(binwidth=.5) +
+  scale_x_continuous(breaks=seq(0,20,1)) +
+  labs(x="Inquiries last 6 months",y="Count of loans") +
+  coord_cartesian(xlim=c(0,4))
+
+ggplot(aes(x=1,y=InquiriesLast6Months), data = subset(loan,InquiriesLast6Months<5)) + 
+  geom_boxplot()  +
+  labs(y="Inquiries last 6 months")+
+  coord_flip()
+
+```
+  
+Most inquiries in last 6 months tend to between 0 and 2.
+
+
+
+**Explore Debt to Income Ratio:**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots8, fig.height=3,fig.width=8 }
 
 ###---------------------------------------------------------------------
 #### Histogram of Debt to Income Ratio
@@ -187,31 +278,60 @@ ggplot(aes(x=DebtToIncomeRatio), data = loan) +
   labs(x="Debt to Income Ratio between 0 and 1",y="Count of loans") +
   coord_cartesian(xlim=c(0,1))
 
-###---------------------------------------------------------------------
-#### Histogram of Total Inquiries when the credit was pulled
-ggplot(aes(x=TotalInquiries), data =  loan) + 
-  geom_histogram(binwidth=.5) +
-  scale_x_continuous(breaks=seq(0,30,1)) +
-  labs(x="Inquiries last 6 months",y="Count of loans") +
-  coord_cartesian(xlim=c(0,30))
-
-
-
+# Boxplot
+ggplot(aes(x=1,y=DebtToIncomeRatio), data = loan) + 
+  geom_boxplot() +
+  scale_y_continuous(limits=c(0,1), breaks=seq(0,1,.05)) +
+  labs(y="Debt to Income Ratio between 0 and 1") +
+  coord_flip() 
 
 ```
-  
 
-From the charts above, we can see: 
+Debt to Income Ratio can range from 0 to 10.0, and IQR range is very narrow 
+(between ~0.2 to ~0.3). 
 
-* Most Prosper Score metric is between 3 to 9.
 
-* Most Credit Score is between 650 and 750. 
 
-* Most frequent Income Range is $25k - 75k, and 
+**Explore Credit Scores (Lower Range):**
 
-* Most Debt to Income Ratio is between .1 to .3
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots9, fig.height=3,fig.width=8 }
 
-* Most inquiries seems to be between 0 to 6.
+###---------------------------------------------------------------------
+#### Histogram of Credit Score Lower value
+ggplot(aes(x=CreditScoreRangeLower), data = loan ) + 
+  geom_histogram(stat="count")  +
+  labs(x="Credit Score (Lower Range)>0",y="Count of loans")
+
+# Boxplot
+ggplot(aes(x=1,y=CreditScoreRangeLower), data = loan) + 
+  geom_boxplot() +
+  labs(y="Credit Score(Lower Range)") +
+  coord_flip() 
+
+```
+
+There seems to be loans without or very low credit scores, Credit Score. So we
+only look at those with credit scores larger than 500.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots9a, fig.height=3,fig.width=8 }
+
+###---------------------------------------------------------------------
+#### Histogram of Credit Score Lower value
+ggplot(aes(x=CreditScoreRangeLower), data = subset(loan,CreditScoreRangeLower>0)) + 
+  geom_histogram(stat="count") +
+  scale_x_continuous(breaks=seq(500,900,50)) +
+  labs(x="Credit Score (Lower Range)>0",y="Count of loans")
+
+# Boxplot
+ggplot(aes(x=1,y=CreditScoreRangeLower), data = subset(loan,CreditScoreRangeLower>0) ) + 
+  geom_boxplot() +
+  scale_y_continuous(limits=c(500,900), breaks=seq(500,900,50)) +
+  labs(y="Credit Score(Lower Range)") +
+  coord_flip() 
+
+```
+
+Most Credit Scores fall between 650 and 750.
 
 
 ------
@@ -224,7 +344,8 @@ From the charts above, we can see:
 There are 113937 observations and 81 variables. Only 15 variables out of the 
 original 81 are considered of interest for this analysis.
 
-* Term: There are 3 values for Terms (12,36, and 60). 36 month seems to be most common.
+* Term: There are 3 values for Terms (12,36, and 60). 36 month seems to be most 
+common.
 
 * LoanStatus_mod: Has values of Bad Loan, Completed, Current and 
 Past Due (<30 days). Cancelled loans are removed.
@@ -259,8 +380,8 @@ The main features of interest are as follows:
 investigation into your feature(s) of interest?
 
 Other features that might help are:
-"BorrowerAPR", "ProsperRating..Alpha.", "EmploymentStatus", "EmploymentStatusDuration",
-"IsBorrowerHomeowner", etc.
+"BorrowerAPR", "ProsperRating..Alpha.", "EmploymentStatus", 
+"EmploymentStatusDuration", "IsBorrowerHomeowner", etc.
 
 ### Did you create any new variables from existing variables in the dataset?
 
@@ -283,7 +404,7 @@ order.
 
 # Bivariate Plots Section
 
-Study the relationship between Loan Status and Prosper Score:
+**Study the relationship between Loan Status and Prosper Score:**
 
 Histograms of Prospect Scores by Loan Status
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots0, fig.height=3,fig.width=8 }
@@ -322,7 +443,7 @@ compared to those with lower scores.
 
 
 
-Explore relationship between Loan Status and Credit-Score:
+**Explore relationship between Loan Status and Credit-Score:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots2, fig.height=3,fig.width=8 }
 ###---------------------------------------------------------------------
 ### Relationship between Loan Status and Credit-Score
@@ -337,11 +458,12 @@ IQR range of Credit Scores for Bad Loans are lower compared to that of other Loa
 Statuses.
 
 
-Explore relationship between Loan Status and Current Delinquencies:
+**Explore relationship between Loan Status and Current Delinquencies:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots3, fig.height=3,fig.width=8 }
 ###---------------------------------------------------------------------
 ### Relationships between Number of Current Delinquencies for each Loan Status
-ggplot(aes(x=LoanStatus_mod ,y=DelinquenciesLast7Years), data = subset(loan, DelinquenciesLast7Years>0)) +
+ggplot(aes(x=LoanStatus_mod ,y=DelinquenciesLast7Years), 
+       data = subset(loan, DelinquenciesLast7Years>0)) +
   geom_boxplot() +
   coord_cartesian(ylim=c(0,20))
 ```
@@ -350,7 +472,7 @@ Number of Delinquencies in past 7 years does not seem to determine if the loan
 will be 'bad'. 
 
 
-Explore relationship between Inquiries in last 6 months  and Debt to income ratio
+**Explore relationship between Inquiries in last 6 months  and Debt to income ratio:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots4, fig.height=3,fig.width=8 }
 
 ###---------------------------------------------------------------------
@@ -365,7 +487,7 @@ Overall, there doesn't seem to be any relationship between Inquiries in last
 6 months  and Debt to income ratio
 
 
-Explore relationship between Income Range and Loan Status
+**Explore relationship between Income Range and Loan Status:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots5, fig.height=3,fig.width=8 }
 
 ###---------------------------------------------------------------------
@@ -395,12 +517,24 @@ are classified as Bad Loan. Comparing that to income range '$1-$25,000', only
 about 35% of loans are classified as Bad loans.
 
 
-Explore relationship between Income Range and Debt to Income Ratio
+**Explore relationship between Income Range and Debt to Income Ratio:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots6, fig.height=3,fig.width=8 }
 
 # Income Range and Debt to Income Ratio
 ggplot(aes(x=IncomeRange ,y=DebtToIncomeRatio),data=loan ) +
-  geom_jitter(alpha=1/10)
+  geom_boxplot()
+
+```
+
+Most Debt to income ratio values are concentrated <1. So we zoom-in:
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots6a, fig.height=3,fig.width=8 }
+
+# Income Range and Debt to Income Ratio
+ggplot(aes(x=IncomeRange ,y=DebtToIncomeRatio),data=loan ) +
+  geom_boxplot() +
+  coord_cartesian(ylim=c(0,1))
+
 
 ```
 
@@ -408,8 +542,24 @@ Loans with low income have debt to income ratio more spread out (with some excee
 Whereas, Loans with higher income consistently have very low debt to income ratio.
 
 
+**Explore relationships between LoanStatus and Debt to Income Ratio:**
 
-Pairwise graphs of variables among variables that are not of main interest:
+```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots6b, fig.height=3,fig.width=8 }
+
+# Income Range and Debt to Income Ratio
+ggplot(aes(x=LoanStatus_mod ,y=DebtToIncomeRatio),data=loan ) +
+  geom_boxplot() +
+  coord_cartesian(ylim=c(0,1))
+
+
+```
+
+
+Debt to Income ratio does not vary a lot for different values of Loan Status. This 
+is surprising because I expected the Bad Loans to have higher Debt to Income ratio.
+
+
+**Pairwise graphs of variables among variables that are not of main interest:**
 ```{r echo=FALSE,  message=FALSE, warning=FALSE, Bivariate_Plots7, fig.height=6,fig.width=6 }
 
 ggpairs(data=  loan, 
@@ -470,8 +620,8 @@ and Estimated Loss.
 # Multivariate Plots Section
 
 
-Explore relationship between ProsperScore and Loan Status, grouped by credit score 
-ranges:
+**Explore relationship between ProsperScore and Loan Status, grouped by credit score 
+ranges:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots1, fig.height=3,fig.width=8}
 
 
@@ -517,65 +667,64 @@ Higher Income ranges and higher Prosper Scores have less proportion of Bad Loans
 compared to lower Income Ranges and Lower Prosper Scores.
 
 
-Explore relationship between Credit Score and mean Income Ranges, for each
-Loan Status type:
+**Explore relationship between Credit Score and mean Income Ranges, for each 
+Loan Status type:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots2, fig.height=3,fig.width=8}
 
-loan.mean = 
-  subset(loan,CreditScoreRangeLower>0) %>% 
-  group_by(IncomeRange, LoanStatus_mod) %>%
-  summarise(mean.CreditScore = mean(CreditScoreRangeLower) ) %>%
-  arrange(IncomeRange,LoanStatus_mod)
-
-
-
-
-# Plot of mean Credit Scores for each Loan Status and Income Range
-ggplot(aes(x=IncomeRange,y=mean.CreditScore, color=LoanStatus_mod, group=LoanStatus_mod), data = loan.mean) +
-  geom_line(size=1) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+ggplot(aes(x=IncomeRange,y= CreditScoreRangeLower, fill=LoanStatus_mod  ), data = loan) +
+  geom_boxplot(size=1) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylim(400, 800)+
   labs(x="Income Range")
+
 
 
 ```
 
-In general, mean credit scores for people with bad loans are lower compared to 
+In general, credit scores for people with bad loans are lower compared to 
 that for other groups. Surprisingly, overall credit scores for unemployed people 
 is fairly high. For them, mean credit score do not seem to be good indicator
 their Loan Status.
 
-For employed people, Income range and mean Credit Score seems to be good indicator
-of Loan Status. For example, people with Income Range of $1-24k with 'Bad' loan status
-have average Credit score of ~650. Whereas people in same Income Range with 
-'Completed' Loan Status have mean Credit Score of ~670. This trend is seen for all
-Income Ranges.
+Also, for employed people, credit score IQR range for bad loans and 
+"Past Due (<30 Days)" seems to be lower than completed and current loans. This 
+might indicate that for higher income-range group, it is more likey for people 
+with lower credit scored to default on a loan.
+
+So, for employed people, Income range and mean Credit Score seems to be good 
+indicator of Loan Status. 
 
 
-Explore relationships of Credit Scores, Income Range, and InquiriesLast6Months 
-to Loan Status:
+**Explore relationships of Credit Scores, Income Range, and InquiriesLast6Months 
+to Loan Status:**
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots2a, fig.height=8,fig.width=8}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots2a, fig.height=15,fig.width=8}
 
-ggplot(aes(y=InquiriesLast6Months,x=CreditScoreRangeLower, color=LoanStatus_mod, group=LoanStatus_mod), data = loan) +
-  geom_line(stat='summary', fun.y = mean, aes(color=LoanStatus_mod), size=1 ) +
-  scale_x_continuous(limits = c(350,900)) +
+ggplot(aes(y=InquiriesLast6Months,x=CreditScoreBucket, 
+           fill=LoanStatus_mod), 
+       data = subset(loan,!(CreditScoreBucket %in% c("<500","900+")) &
+                       !is.na(CreditScoreBucket))
+      ) +
+  geom_boxplot() +
   facet_grid(IncomeRange~.) +
-  labs(x="Credit Score Range (Lower)",y="Mean Inquiries Last 6 Months")
+  labs(x="Credit Score Range bucket",y="Mean Inquiries Last 6 Months") +
+  coord_cartesian(ylim=c(0,10))
   
 ```  
 
-When we add InquiriesLast6Months into Credit Score and Income Range, 
-it shows, on average, there are more Inquiries in Last 6 Months for Bad Loans, compared to
-other loan types.
+We can see that Bad Loans have slightly higher number of Inquiries in Last 6 Months
+for all Credit score range buckets and Income Ranges. Bad Loans in lower credit 
+score range (500-600) and those in high range (800-900) seem to have the most
+variation in terms of number of Inquiries in Last 6 Months. 
 
-Completed loans have lower number of Inquiries in Last 6 Months, but they are still 
-larger than Current loans (esp. in lower Credit Score ranges). This might be
-because of the fact that completed loans includes past loans where investors were
-more willing to take larger risks (and therefore reaped larger rewards). But the investors
-for current loans are less willing to take risks.
+For lower Credit Score Range (500-600), completed loans have more Inquiries in 
+Last 6 Months compared to Current loans. This might be because of the fact that 
+completed loans includes past loans where investors were more willing to take 
+larger risks (and therefore reaped larger rewards). But the investors for current 
+loans are less willing to take risks (especially for people with lower credit scores). 
+Therefore, we see them investing only on those loans with lower number of Inquiries.
 
 
-Study relationship between Income Range and Loan Status, by Income-Vertifiable.
+**Study relationship between Income Range and Loan Status, by Income-Verifiable:**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots3, fig.height=3,fig.width=8}
 
@@ -595,23 +744,28 @@ income ranges. Therefore, for Non-verifiable group, Income Range does not
 seem to be good inidcator of Loan Status.
 
 
-Explore relationship between Income Ranges and Debt to income Ratio, for each
-Loan Status type:
+**Explore relationship between Income Ranges and Debt to income Ratio, for each
+Loan Status type:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots4, fig.height=3,fig.width=8}
 
-ggplot(aes(x=IncomeRange,y=DebtToIncomeRatio), data = loan) +
-  geom_jitter( aes(color=LoanStatus_mod)) +
+ggplot(aes(x=IncomeRange,y=DebtToIncomeRatio,fill=LoanStatus_mod), data = loan) +
+  geom_boxplot( ) +
   scale_colour_brewer(type = 'div')+
+  coord_cartesian(ylim=c(0,1)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
-Loan Status values are uniformly spread out across range of Debt to income Ratio values,
-for different Income Range values.
+
+For each Income Range, Bad Loans have slightly lower Debt to Income ratio compared
+to Current loans, and slightly higher Debt to Income ratio compared to Completed 
+loans. This is counterintuitive because one would expect the Bad Loans to have
+higher Debt to Income ratio than any other categories. 
 
 
-Explore relationship between Debt to income Ratio and Inquiries in last 6 months, 
-for each Loan Status type:
+
+**Explore relationship between Debt to income Ratio and Inquiries in last 6 months, 
+for each Loan Status type:**
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots5, fig.height=3,fig.width=8}
 
 # Mean inquiries in past 6 months for different Loan Types
@@ -643,9 +797,9 @@ deviate from Good Loans by a huge margin in terms of Inquiries in Last 6 Months.
 For DebtToIncomeRatio above 2.5, Loan Status values do not seem deviate a lot from
 each other.
 
-Another interesting observation is that alonst all Current loans have DebtToIncomeRatio
+Another interesting observation is that alomst all Current loans have DebtToIncomeRatio
 below 1, peaking around .7. What can be the reason for this? Maybe this the threshold where 
-risk and return are optimal?
+risk vs reward is optimal?
 
 
 Next, we attempt to facet the graph by Income Range:
@@ -656,6 +810,7 @@ ggplot(aes(x=.5*round(DebtToIncomeRatio/.5,1) ,y=InquiriesLast6Months), data = s
   geom_smooth(aes(color=LoanStatus_mod),stat='summary', fun.y=mean) +
   scale_colour_brewer(type = 'div') +
   labs(x="Debt to Income Ratio (smoothed)", y="Inquiries in Last 6 Months (smoothed)") + 
+  scale_x_continuous(breaks=seq(0,10,1))+
   facet_grid(IncomeRange~.)
 
 ```
@@ -664,7 +819,8 @@ In general # of Inquiries are higher for Bad Loans compared to other Loan Status
 for all income Ranges and Debt to Income ratio ranges.
 
 For loans with Income Range of $1k to $25k, Not employed and Not displayed, # of 
-inquiries are significantly higher for Bad Loans compared to Completed Loans.
+inquiries are significantly higher for Bad Loans compared to Completed Loans. There
+is a huge peak at 1.5.
 
 For Income range $25k or higher, # of inquiries are similar for all loan statuses.
 
@@ -706,37 +862,49 @@ individual is unemployed.
 
 
 ### Plot One
-```{r echo=FALSE,  message=FALSE, warning=FALSE,Plot_One, fig.height=8,fig.width=8}
+```{r echo=FALSE,  message=FALSE, warning=FALSE,Plot_One, fig.height=15,fig.width=8}
 
-ggplot(aes(y=InquiriesLast6Months,x=CreditScoreRangeLower, color=LoanStatus_mod, group=LoanStatus_mod), data = loan) +
-  geom_line(stat='summary', fun.y = mean, aes(color=LoanStatus_mod), size=1 ) +
-  scale_x_continuous(limits = c(350,900)) +
+
+ggplot(aes(y=InquiriesLast6Months,x=CreditScoreBucket, 
+           fill=LoanStatus_mod), 
+       data = subset(loan,!(CreditScoreBucket %in% c("<500","900+")) &
+                       !is.na(CreditScoreBucket))
+      ) +
+  geom_boxplot() +
   facet_grid(IncomeRange~.) +
   labs(x="Credit Score Range (Lower)",y="Mean Inquiries Last 6 Months", 
-       title="Relationships of Credit Scores, Income Range, and\nInquiriesLast6Months to Loan Status") 
-
+       title="Relationships of Credit Scores, Income Range, and\nInquiriesLast6Months to Loan Status"
+       ) +
+  coord_cartesian(ylim=c(0,10))
 
 ```
 
 ### Description One
 
 This plot shows how Credit Scores, Income Range, and InquiriesLast6Months relates 
-to Loan Status. Bad Loans have higher mean number of Inquiries compared to the good ones,
+to Loan Status. Bad Loans have higher Number of Inquiries compared to the good ones,
 especially at lower Credit Score ranges. As the Credit Score increases, the difference
 becomes less and less obvious.
+
+Completed loans have lower # of Inquiries than Bad Loans, but higher than Current
+ones (especially for lower Credit Score range). This might indicate that investors 
+for more recent loans are less likely to invest in loans with higher number of
+inquiries and low credit scores.
 
 
 ------
 
 ### Plot Two
-```{r echo=FALSE,  message=FALSE, warning=FALSE,Plot_Two, fig.height=6,fig.width=8}
+```{r echo=FALSE,  message=FALSE, warning=FALSE,Plot_Two, fig.height=4,fig.width=8}
 
-ggplot(aes(x=IncomeRange,y=DebtToIncomeRatio), data = loan) +
-  geom_jitter( aes(color=LoanStatus_mod)) +
+ggplot(aes(x=IncomeRange,y=DebtToIncomeRatio,fill=LoanStatus_mod), data = loan) +
+  geom_boxplot( ) +
   scale_colour_brewer(type = 'div')+
+  coord_cartesian(ylim=c(0,1)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Income Range", y="Debt to Income Ratio", 
        title="Relationships of Income Range, Debt to Income Ration and Loan Status")
+
 
 ```
 
@@ -751,12 +919,14 @@ default on their loans.
 ### Plot Three
 ```{r echo=FALSE, message=FALSE, warning=FALSE,Plot_Three, fig.height=4,fig.width=8}
 
-# Plot of mean Credit Scores for each Loan Status and Income Range
-ggplot(aes(x=IncomeRange,y=mean.CreditScore, color=LoanStatus_mod, group=LoanStatus_mod), data = loan.mean) +
-  geom_line(size=1) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+
+ggplot(aes(x=IncomeRange,y= CreditScoreRangeLower, fill=LoanStatus_mod  ), data = loan) +
+  geom_boxplot(size=1) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylim(400, 800)+
   labs(x="Income Range", y="Mean Credit Scores",
        title="Relationships of Income Range, Credit Score and Loan Status")
+
+
 
 ```
 
@@ -769,20 +939,16 @@ Individuals with lower income seem to have lower Credit Scores in general, and
 among them, the individuals with bad loans seem to have lower credit scores than 
 the completed/current loans.
 
-The mean credit score for 'current' loans are very high. This might be because
-people have started avoiding loan listing that have attributes which could potentially
-lead to the loan being defaulted - in other words, investors taking less risks with
-the loans.
-
-
-
+Surprisingly, unemployed people have higher credit scores overall than employed 
+people. This might be because investors are only comfortable lending to unemployed
+people if they have high credit scores. 
 
 ------
 
 # Reflection
 
 This exploration was primarily focused on identifying attributes that distinguished 
-between Completed loan and Bad Loans. Current loans were also studied. 
+between Completed loan and Bad Loans. Current loans were also studied in some cases. 
 
 Variables such as Prosper Score, Income Range, Credit Scores, and Inquiries made
 in Last 6 Months were all related to Loan Status in varying degrees. There variables
@@ -792,7 +958,18 @@ than the investors for past completed & bad loans. Investors for current loans
 seem to be seeking out loans with higher credit scores and less number of
 Inquiries in Past 6 Months.
 
-More work needs to be done to identify the strategies to generate most
+The main struggle I had when performing the analysis was selecting the best 
+plot to use to represent features. There are many varieties of plots available,
+so it was lot of trial and error in determinng the best plot to convey information
+about certain group of features.
+
+The main success I had was in identifying the features that differentiated bad
+loans from the good ones. I think I have a pretty good understanding of how 
+different features are related to one another, and to the Loan Status. It was an
+interesting exercise because I could pretend that I was one of the investors, and 
+that I was trying to study which loans should I invest in, and which I should avoid.
+
+However, more work needs to be done to identify strategies to generate the most
 expected return for an investor. I believe valriables such as Borrower APR, Estimated
 Return, Listing Category, time since loan origination, and other attributes about the
 member can help investors maximize their returns.
